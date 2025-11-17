@@ -11,16 +11,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+        - name: Checkout repository
+          uses: actions/checkout@v3
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.0'
-        extensions: mysqli
+        - name: Setup PHP
+          uses: shivammathur/setup-php@v2
+          with:
+              php-version: '8.0'
+              extensions: mysqli
 
-    - name: Install Composer dependencies
-      run: composer install
+        - name: Install Composer dependencies
+          run: composer install
 
-    - name: Give execute permission to
+        - name: Give execute permission to PHPUnit
+          run: chmod +x vendor/bin/phpunit
+
+        - name: Run PHPUnit tests
+          run: vendor/bin/phpunit --configuration phpunit.xml
