@@ -1,0 +1,1 @@
+{"version":1,"defects":{"CrudTest::testTambah":4,"CrudTest::testRead":4,"CrudTest::testUpdate":4,"CrudTest::testDelete":4},"times":{"CrudTest::testTambah":0.082,"CrudTest::testRead":0.019,"CrudTest::testUpdate":0.034,"CrudTest::testDelete":0.036}}
