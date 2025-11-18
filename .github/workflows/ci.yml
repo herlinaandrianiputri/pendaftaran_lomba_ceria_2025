@@ -10,20 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: db_pendaftaran_lomba
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -32,27 +18,19 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.0'
-          extensions: mysqli
+          coverage: none
 
       - name: Install Composer dependencies
         run: composer install
 
-      - name: Wait for MySQL to be ready
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y default-mysql-client
-          for i in `seq 1 30`; do
-            if mysql -h 127.0.0.1 -u root -proot -e "SELECT 1" > /dev/null 2>&1; then
-              echo "MySQL READY!"
-              break
-            fi
-            echo "Waiting for MySQL..."
-            sleep 2
-          done
+      - name: Verify PHPUnit file exists
+        run: ls -l vendor/bin
 
-      - name: Import database structure
+      - name: Fix PHPUnit permissions
         run: |
-          mysql -h 127.0.0.1 -u root -proot db_pendaftaran_lomba < struktur.sql
+          chmod 755 vendor/bin/phpunit
+          chmod +x vendor/bin/phpunit
+          file vendor/bin/phpunit
 
       - name: Run PHPUnit tests
-        run: vendor/bin/phpunit --configuration phpunit.xml
+        run: php vendor/bin/phpunit --configuration phpunit.xml
