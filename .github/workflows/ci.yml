@@ -2,9 +2,9 @@ name: CI PHPUnit
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -41,17 +41,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y default-mysql-client
-          for i in `seq 1 30`; do
-            if mysql -h 127.0.0.1 -u root -proot -e "SELECT 1" >/dev/null 2>&1; then
-              echo "MySQL READY!"
-              break
-            fi
+          for i in {1..30}; do
+            mysql -h 127.0.0.1 -u root -proot -e "SELECT 1" && break
             echo "Waiting for MySQL..."
             sleep 2
           done
 
       - name: Import database structure
-        run: mysql -h 127.0.0.1 -u root -proot db_pendaftaran_lomba < struktur.sql
+        run: |
+          mysql -h 127.0.0.1 -u root -proot db_pendaftaran_lomba < struktur.sql
 
       - name: Run PHPUnit tests
         run: php vendor/bin/phpunit --configuration phpunit.xml
