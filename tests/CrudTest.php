@@ -8,8 +8,8 @@ class CrudTest extends TestCase
 
     protected function setUp(): void
     {
-        // HOST WAJIB "mysql" untuk GitHub Actions
-        $this->conn = new mysqli("mysql", "root", "root", "db_pendaftaran_lomba");
+        // FIX: GitHub Actions MySQL host adalah 127.0.0.1
+        $this->conn = new mysqli("127.0.0.1", "root", "root", "db_pendaftaran_lomba");
 
         if ($this->conn->connect_errno) {
             die("MySQL Connection Error: " . $this->conn->connect_error);
@@ -18,10 +18,10 @@ class CrudTest extends TestCase
 
     public function testTambah()
     {
-        $nama   = "Herlina Andriani";
-        $telp   = "0895622203301";
-        $email  = "herlinaandrianiputri@gmail.com";
-        $lomba  = "Nyanyi";
+        $nama  = "Herlina Andriani";
+        $telp  = "0895622203301";
+        $email = "herlinaandrianiputri@gmail.com";
+        $lomba = "Nyanyi";
 
         $stmt = $this->conn->prepare(
             "INSERT INTO pendaftaran (nama_lengkap, nomor_telepon, email, pilihan_lomba)
