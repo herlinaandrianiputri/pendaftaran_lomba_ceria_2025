@@ -2,13 +2,27 @@ name: CI PHPUnit
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: db_pendaftaran_lomba
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - name: Checkout repository
@@ -18,19 +32,26 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.0'
-          coverage: none
+          extensions: mysqli
 
       - name: Install Composer dependencies
         run: composer install
 
-      - name: Verify PHPUnit file exists
-        run: ls -l vendor/bin
-
-      - name: Fix PHPUnit permissions
+      - name: Wait for MySQL to be ready
         run: |
-          chmod 755 vendor/bin/phpunit
-          chmod +x vendor/bin/phpunit
-          file vendor/bin/phpunit
+          sudo apt-get update
+          sudo apt-get install -y default-mysql-client
+          for i in `seq 1 30`; do
+            if mysql -h 127.0.0.1 -u root -proot -e "SELECT 1" >/dev/null 2>&1; then
+              echo "MySQL READY!"
+              break
+            fi
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+
+      - name: Import database structure
+        run: mysql -h 127.0.0.1 -u root -proot db_pendaftaran_lomba < struktur.sql
 
       - name: Run PHPUnit tests
         run: php vendor/bin/phpunit --configuration phpunit.xml
