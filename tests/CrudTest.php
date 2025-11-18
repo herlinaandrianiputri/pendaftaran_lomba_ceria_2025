@@ -8,13 +8,16 @@ class CrudTest extends TestCase
 
     protected function setUp(): void
     {
-        
-        $this->conn = new mysqli("localhost", "root", "", "db_pendaftaran_lomba");
+        // HOST WAJIB "mysql" untuk GitHub Actions
+        $this->conn = new mysqli("mysql", "root", "root", "db_pendaftaran_lomba");
+
+        if ($this->conn->connect_errno) {
+            die("MySQL Connection Error: " . $this->conn->connect_error);
+        }
     }
 
     public function testTambah()
     {
-        
         $nama   = "Herlina Andriani";
         $telp   = "0895622203301";
         $email  = "herlinaandrianiputri@gmail.com";
@@ -28,25 +31,17 @@ class CrudTest extends TestCase
 
         $hasil = $stmt->execute();
 
-        
-        $this->assertTrue($hasil, "Gagal menambah data pendaftaran.");
+        $this->assertTrue($hasil);
     }
 
     public function testRead()
     {
         $ambil = $this->conn->query("SELECT * FROM pendaftaran");
-
-        
-        $this->assertGreaterThan(
-            0,
-            $ambil->num_rows,
-            "Data pendaftaran tidak ditemukan."
-        );
+        $this->assertGreaterThan(0, $ambil->num_rows);
     }
 
     public function testUpdate()
     {
-        
         $this->conn->query(
             "UPDATE pendaftaran 
              SET nama_lengkap='Herlina A. Update'
@@ -61,24 +56,17 @@ class CrudTest extends TestCase
 
         $row = $cek->fetch_assoc();
 
-        $this->assertEquals(
-            "Herlina A. Update",
-            $row['nama_lengkap'],
-            "Update data pendaftaran gagal."
-        );
+        $this->assertEquals("Herlina A. Update", $row['nama_lengkap']);
     }
 
     public function testDelete()
     {
-        
         $this->conn->query(
             "DELETE FROM pendaftaran 
              ORDER BY id_pendaftaran DESC LIMIT 1"
         );
 
-        
         $hasil = $this->conn->query("SELECT * FROM pendaftaran");
-
-        $this->assertNotNull($hasil, "Query hapus gagal dijalankan.");
+        $this->assertNotNull($hasil);
     }
 }
